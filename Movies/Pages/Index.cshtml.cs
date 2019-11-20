@@ -9,33 +9,66 @@ namespace Movies.Pages
 {
     public class IndexModel : PageModel
     {
-        public MovieDatabase movieDatabase = new MovieDatabase();
 
         public List<Movie> Movies;
 
+        [BindProperty]
+        public string Search { get; set; }
+
+        [BindProperty]
+        public List<string> Mpaa { get; set; } = new List<string>();
+
+        [BindProperty]
+        public float? MinIMDB { get; set; }
+
+        [BindProperty]
+        public float? MaxIMDB { get; set; }
+
         public void OnGet()
         {
-            Movies = movieDatabase.All;
+            Movies = MovieDatabase.All;
         }
 
-        public void OnPost(string search, List<string> rating)
+        public void OnPost(string search, List<string> rating, float? minIMDB, float? maxIMDB)
         {
-            if(search != null && rating.Count != 0)
+            Search = search;
+            Mpaa = rating;
+            MinIMDB = minIMDB;
+            MaxIMDB = maxIMDB;
+            Movies = MovieDatabase.All;
+            if(search != null)
             {
-                Movies = movieDatabase.SearchAndFilter(search, rating);
+                Movies = MovieDatabase.Search(Movies, search);
             }
-            else if(rating.Count != 0)
+            if(rating.Count != 0)
             {
-                Movies = movieDatabase.Filter(rating);
+                Movies = MovieDatabase.FilterByMPAA(Movies, rating);
             }
-            else if(search != null)
+            if(minIMDB != null)
             {
-                Movies = movieDatabase.Search(search);
+                Movies = MovieDatabase.FilterByMinIMDB(Movies, (float)minIMDB);
             }
-            else
+            if(maxIMDB != null)
             {
-                Movies = movieDatabase.All;
+                Movies = MovieDatabase.FilterByMaxIMDB(Movies, (float)maxIMDB);
             }
+
+            //if(search != null && rating.Count != 0)
+            //{
+            //    Movies = movieDatabase.SearchAndFilter(search, rating);
+            //}
+            //else if(rating.Count != 0)
+            //{
+            //    Movies = movieDatabase.Filter(rating);
+            //}
+            //else if(search != null)
+            //{
+            //    Movies = movieDatabase.Search(search);
+            //}
+            //else
+            //{
+            //    Movies = movieDatabase.All;
+            //}
         }
     }
 }
